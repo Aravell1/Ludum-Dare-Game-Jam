@@ -15,15 +15,29 @@ public:
 	// Sets default values for this character's properties
 	ABaseNPC();
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Base NPC Settings")
+		float ScoreValue = 100.0f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Base NPC Settings")
+		float TimeBetweenBehaviours = 10.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Base NPC Settings")
+		float LaunchForce = 150.0f;
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void PrimaryBehaviour() {};
+
+	UFUNCTION()
+		virtual void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	FTimerHandle BehaviourTimer;
 
 };
