@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h" 
 #include "BaseNPC.generated.h"
 
 UCLASS()
@@ -21,8 +23,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Base NPC Settings")
 		float TimeBetweenBehaviours = 10.0f;
 
+	/*UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Base NPC Settings")
+		float LaunchForce = 150.0f;*/
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Base NPC Settings")
-		float LaunchForce = 150.0f;
+		float MovementSpeed = 100.0f;
 
 
 protected:
@@ -39,5 +44,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	FTimerHandle BehaviourTimer;
+	TArray<FVector> PathToFollow;
+	int PathIndex = 1;
+
+private:
+
 
 };
