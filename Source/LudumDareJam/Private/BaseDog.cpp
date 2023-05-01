@@ -18,15 +18,19 @@ void ABaseDog::BeginPlay()
 
 	SpawnDefaultController();
 
+	SpawnPoint = GetActorLocation();
+
 	if (!AIController)
 		AIController = GetController<ADogAIController>();
 	if (AIController)
 		AIController->GetPathFollowingComponent()->OnRequestFinished.AddUObject(this, &ABaseDog::OnMoveCompleted);
 
 	if (!Player)
-		Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+		Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	
 	GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
+
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ABaseDog::OnComponentBeginOverlap);
 
 	if (AIController && Player)
 	{
@@ -42,19 +46,22 @@ void ABaseDog::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResul
 	{
 		switch (GetDogState())
 		{
-		case EDogState::ChasePlayer:
-			//Hit Player
-			break;
-
-		case EDogState::CatchNewspaper:
-			//Socket Newspaper to mouth
-			//Play Sit animation
-			SetDogState(EDogState::Sit);
-			break;
-
 		case EDogState::RunAway:
 			Destroy();
 			break;
+		}
+	}
+}
+
+
+void ABaseDog::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (CheckDogState(EDogState::ChasePlayer))
+	{
+		if (OtherActor == UGameplayStatics::GetPlayerPawn(GetWorld(), 0))
+		{
+			//Hit Player
+			RunAway();
 		}
 	}
 }
@@ -70,20 +77,23 @@ void ABaseDog::Tick(float DeltaTime)
 
 void ABaseDog::CheckForNewspapers()
 {
-	FVector StartLocation = GetActorLocation();
-	TArray<AActor*> ActorsToIgnore = { GetOwner(), this };
-	TArray<AActor*> OutActors;
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Camera));
+	FVector Start = GetActorLocation();
+	FVector End = Start + GetActorForwardVector() * 100.0f;
+	float Radius = NewspaperCheckRadius;
+	const TArray<AActor*> ActorsToIgnore = { GetOwner(), this };
+	TArray<FHitResult> OutHits;
 
-	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), StartLocation, NewspaperCheckRadius, ObjectTypes, nullptr, ActorsToIgnore, OutActors);
-	if (OutActors.Num() > 0)
+	const bool Hit = UKismetSystemLibrary::SphereTraceMulti(GetWorld(), Start, End, Radius,
+		UEngineTypes::ConvertToTraceType(ECC_Camera), false, ActorsToIgnore,
+		EDrawDebugTrace::None, OutHits, true, FLinearColor::Red, FLinearColor::Green, 0.1f);
+
+	if (Hit)
 	{
-		for (AActor* HitActor : OutActors)
+		for (FHitResult HitResult : OutHits)
 		{
-			if (HitActor->ActorHasTag("Newspaper"))
+			if (HitResult.GetActor()->ActorHasTag("Newspaper"))
 			{
-				CatchNewspaper(HitActor);
+				CatchNewspaper(HitResult.GetActor());
 			}
 		}
 	}
@@ -91,10 +101,30 @@ void ABaseDog::CheckForNewspapers()
 
 void ABaseDog::CatchNewspaper(AActor* Newspaper)
 {
-	GetCharacterMovement()->MaxWalkSpeed = JumpSpeed;
+	AIController->SetFocus(Newspaper);
+	SetActorRotation(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Newspaper->GetActorLocation()));
 
-	//Play Jump Animation
+	if (JumpMontage)
+		GetMesh()->GetAnimInstance()->Montage_Play(JumpMontage);
 
-	AIController->MoveToActor(Newspaper);
+	FVector LaunchDirection = (Newspaper->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+	LaunchDirection *= JumpSpeed;
+
+	LaunchCharacter(LaunchDirection, true, true);
+
+	Newspaper->Destroy();
+	Cast<UStaticMeshComponent>(GetDefaultSubobjectByName(TEXT("Newspaper")))->SetVisibility(true);
+
+	SetDogState(EDogState::Sit);
+	AIController->StopMovement();
+
+	GetWorldTimerManager().SetTimer(RunAwayTimer, this, &ABaseDog::RunAway, RunAwayDuration, false);
+}
+
+void ABaseDog::RunAway()
+{
+	AIController->ClearFocus(EAIFocusPriority::Gameplay);
+	AIController->MoveToLocation(SpawnPoint);
+	SetDogState(EDogState::RunAway);
 }
 
