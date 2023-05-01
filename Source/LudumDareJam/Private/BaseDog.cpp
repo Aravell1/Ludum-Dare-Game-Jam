@@ -66,7 +66,7 @@ void ABaseDog::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 		{
 			if (Cast<IPaperBoyInterface>(OtherActor))
 			{
-				Cast<IPaperBoyInterface>(OtherActor)->PlayerHit();
+				Cast<IPaperBoyInterface>(OtherActor)->PlayerHit(this);
 			}
 			//Hit Player
 			RunAway();

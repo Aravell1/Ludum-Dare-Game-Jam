@@ -24,6 +24,6 @@ class LUDUMDAREJAM_API IPaperBoyInterface
 public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void PlayerHit();
+	void PlayerHit(AActor* HittingActor);
 	
 };
