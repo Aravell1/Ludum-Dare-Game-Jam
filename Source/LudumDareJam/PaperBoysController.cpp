@@ -17,9 +17,7 @@ void APaperBoysController::SetupPlayerInputComponent(class UInputComponent* Play
 }
 
 void APaperBoysController::BeginPlay() {
-	PaperBoys = Cast<APaperBoyShooter>(GetWorld()->SpawnActor(PaperBoysTemplate));
-	
-	Possess(PaperBoys);
+
 }
 
 #pragma endregion

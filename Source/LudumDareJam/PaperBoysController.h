@@ -4,9 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-
-#include "PaperBoyShooter.h"
-
 #include "PaperBoysController.generated.h"
 
 UENUM(BlueprintType)
@@ -24,20 +21,6 @@ class LUDUMDAREJAM_API APaperBoysController : public APlayerController {
 	GENERATED_BODY()
 
 	APaperBoysController();
-
-	#pragma region Variables
-
-private:
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<APaperBoyShooter> PaperBoysTemplate = nullptr;
-
-public:
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Default")
-	APaperBoyShooter* PaperBoys = nullptr;
-
-	#pragma endregion			
 
 protected:
 	// APawn interface
