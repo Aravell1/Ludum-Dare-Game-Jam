@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "CarAIController.generated.h"
+#include "DogAIController.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LUDUMDAREJAM_API ACarAIController : public AAIController
+class LUDUMDAREJAM_API ADogAIController : public AAIController
 {
 	GENERATED_BODY()
 	
