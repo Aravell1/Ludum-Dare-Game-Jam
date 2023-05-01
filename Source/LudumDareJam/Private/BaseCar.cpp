@@ -15,20 +15,14 @@ void ABaseCar::BehaviourState()
 {
 	switch (GetCarState())
 	{
-	case ECarState::Driving:
-		//Play looping driving sound
-		break;
-
 	case ECarState::Stopped:
 		GetWorldTimerManager().SetTimer(StopTimer, this, &ABaseCar::EndStop, StopDuration);
 		break;
 
-	case ECarState::StoppedAtPlayer:
-		//Play Honk Sound every so often
-		break;
-
 	case ECarState::Busted:
 		//Play constant honk sound
+		SetMovementSpeed(0);
+		PlaySound(BlaringHonkSound);
 		SetLifeSpan(10);
 		break;
 	}
@@ -54,12 +48,27 @@ void ABaseCar::EndStop()
 	SetCarState(ECarState::Accelerating);
 }
 
+void ABaseCar::PlayHonk()
+{
+	if (GetCarState() == ECarState::StoppedAtPlayer || GetCarState() == ECarState::EmergencyBraking)
+	{
+		PlaySound(HonkSound);
+		GetWorldTimerManager().SetTimer(HonkTimer, this, &ABaseCar::PlayHonk, FMath::RandRange(HonkDuration * 0.8f, HonkDuration * 1.2f));
+	}
+	else
+	{
+		PlaySound(DrivingSound);
+	}
+}
+
 // Called when the game starts or when spawned
 void ABaseCar::BeginPlay()
 {
 	Super::BeginPlay();
 
 	SetStartPosition(GetActorLocation());
+
+	PlaySound(DrivingSound);
 
 }
 
@@ -91,6 +100,8 @@ void ABaseCar::Tick(float DeltaTime)
 				{
 					SetCarState(ECarState::EmergencyBraking);
 					HitPlayer = true;
+
+					PlayHonk();
 				}
 			}
 

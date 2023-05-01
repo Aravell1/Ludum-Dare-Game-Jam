@@ -8,6 +8,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h" 
+#include "../LudumDareJamGameMode.h"
+#include "PaperBoyInterface.h"
+#include "Sound/SoundCue.h" 
 #include "Components/CapsuleComponent.h" 
 #include "BaseDog.generated.h"
 
@@ -29,6 +32,12 @@ public:
 	// Sets default values for this character's properties
 	ABaseDog();
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Dog Settings")
+		float ScoreValue = 400.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Dog Settings")
+		float NegativeScoreValue = -300.0f;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dog Settings")
 		float NewspaperCheckRadius = 750.0f;
 
@@ -43,6 +52,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dog Settings")
 		UAnimMontage* JumpMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dog Sound Effects")
+		USoundCue* BarkSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dog Sound Effects")
+		USoundCue* PantSound;
 
 protected:
 	// Called when the game starts or when spawned
@@ -62,15 +77,24 @@ public:
 	UFUNCTION(BlueprintCallable)
 		bool CheckDogState(EDogState StateToCheck) { return DogState == StateToCheck; };
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void PlaySound(USoundCue* SoundToPlay);
+
 private:
 
 	void CheckForNewspapers();
 	void CatchNewspaper(AActor* Newspaper);
 	void RunAway();
+	void PlayBark();
 
 	EDogState DogState = EDogState::ChasePlayer;
 	ADogAIController* AIController;
 	AActor* Player;
+	ALudumDareJamGameMode* GameMode;
+
 	FTimerHandle RunAwayTimer;
 	const float RunAwayDuration = 10.0f;
+
+	FTimerHandle BarkTimer;
+	const float BarkDuration = 10.0f;
 };

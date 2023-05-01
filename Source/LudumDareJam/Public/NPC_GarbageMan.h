@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "BaseNPC.h"
-#include "NPCAIController.h"
 #include "NPC_GarbageMan.generated.h"
 
 /**
@@ -18,7 +17,7 @@ class LUDUMDAREJAM_API ANPC_GarbageMan : public ABaseNPC
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "NPC Settings")
-		AActor* TargetLocation;
+		TArray<AActor*> TargetPath;
 
 protected:
 
@@ -34,6 +33,9 @@ private:
 
 	FVector StartLocation = FVector::ZeroVector;
 
-	ANPCAIController* AIController;
+	FTimerHandle PauseTimer;
+	const float PauseDuration = 2.5f;
+
+	void BeginMoving();
 	
 };

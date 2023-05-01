@@ -6,6 +6,10 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h" 
+#include "NPCAIController.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h" 
+#include "../LudumDareJamGameMode.h"
 #include "BaseNPC.generated.h"
 
 UCLASS()
@@ -18,7 +22,7 @@ public:
 	ABaseNPC();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Base NPC Settings")
-		float ScoreValue = 100.0f;
+		float ScoreValue = 500.0f;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Base NPC Settings")
 		float TimeBetweenBehaviours = 10.0f;
@@ -28,6 +32,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Base NPC Settings")
 		float MovementSpeed = 100.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "NPC Sound Effects")
+		USoundCue* ScreamSound;
 
 
 protected:
@@ -43,9 +50,15 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	ANPCAIController* AIController;
+	ALudumDareJamGameMode* GameMode;
+
 	FTimerHandle BehaviourTimer;
 	TArray<FVector> PathToFollow;
 	int PathIndex = 1;
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void PlaySound(USoundCue* SoundToPlay);
 
 private:
 

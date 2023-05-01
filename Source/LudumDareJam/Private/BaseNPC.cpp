@@ -20,6 +20,9 @@ void ABaseNPC::BeginPlay()
 
 	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
 
+	if (!GameMode)
+		GameMode = Cast<ALudumDareJamGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+
 }
 
 void ABaseNPC::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
@@ -27,6 +30,10 @@ void ABaseNPC::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPri
 	if (OtherActor->ActorHasTag("Newspaper") && OtherActor->GetVelocity().Length() > 1000.0f)
 	{
 		//Add Score to GameMode
+		AIController->StopMovement();
+		GameMode->AddScore(ScoreValue);
+
+		PlaySound(ScreamSound);
 
 		GetWorldTimerManager().ClearTimer(BehaviourTimer);
 		GetMesh()->SetSimulatePhysics(true);

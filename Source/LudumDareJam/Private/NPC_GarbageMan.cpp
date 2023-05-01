@@ -13,8 +13,9 @@ void ANPC_GarbageMan::BeginPlay()
 		AIController->GetPathFollowingComponent()->OnRequestFinished.AddUObject(this, &ANPC_GarbageMan::OnMoveCompleted);
 
 	PathToFollow.Add(GetActorLocation());
-	if (TargetLocation)
-		PathToFollow.Add(TargetLocation->GetActorLocation());
+	if (TargetPath.Num() > 0)
+		for (int i = 0; i < TargetPath.Num(); i++)
+			PathToFollow.Add(TargetPath[i]->GetActorLocation());
 }
 
 void ANPC_GarbageMan::PrimaryBehaviour()
@@ -26,6 +27,13 @@ void ANPC_GarbageMan::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowi
 {
 	if (Result.IsSuccess())
 	{
-		PathIndex++;
+		GetWorldTimerManager().SetTimer(PauseTimer, this, &ANPC_GarbageMan::BeginMoving, FMath::RandRange(PauseDuration * 0.8f, PauseDuration * 1.2f));
 	}
+}
+
+void ANPC_GarbageMan::BeginMoving()
+{
+	PathIndex++;
+	if (PathIndex >= PathToFollow.Num())
+		PathIndex = 0;
 }

@@ -25,6 +25,9 @@ void ABaseDog::BeginPlay()
 	if (AIController)
 		AIController->GetPathFollowingComponent()->OnRequestFinished.AddUObject(this, &ABaseDog::OnMoveCompleted);
 
+	if (!GameMode)
+		GameMode = Cast<ALudumDareJamGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+
 	if (!Player)
 		Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	
@@ -38,6 +41,7 @@ void ABaseDog::BeginPlay()
 		AIController->MoveToActor(Player);
 	}
 
+	PlayBark();
 }
 
 void ABaseDog::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
@@ -60,6 +64,10 @@ void ABaseDog::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	{
 		if (OtherActor == UGameplayStatics::GetPlayerPawn(GetWorld(), 0))
 		{
+			if (Cast<IPaperBoyInterface>(OtherActor))
+			{
+				Cast<IPaperBoyInterface>(OtherActor)->PlayerHit();
+			}
 			//Hit Player
 			RunAway();
 		}
@@ -117,8 +125,11 @@ void ABaseDog::CatchNewspaper(AActor* Newspaper)
 
 	SetDogState(EDogState::Sit);
 	AIController->StopMovement();
+	GameMode->AddScore(ScoreValue);
 
 	GetWorldTimerManager().SetTimer(RunAwayTimer, this, &ABaseDog::RunAway, RunAwayDuration, false);
+
+	PlaySound(PantSound);
 }
 
 void ABaseDog::RunAway()
@@ -126,5 +137,14 @@ void ABaseDog::RunAway()
 	AIController->ClearFocus(EAIFocusPriority::Gameplay);
 	AIController->MoveToLocation(SpawnPoint);
 	SetDogState(EDogState::RunAway);
+}
+
+void ABaseDog::PlayBark()
+{
+	if (CheckDogState(EDogState::ChasePlayer))
+	{
+		PlaySound(BarkSound);
+		GetWorldTimerManager().SetTimer(BarkTimer, this, &ABaseDog::PlayBark, FMath::RandRange(BarkDuration * 0.8f, BarkDuration * 1.2f));
+	}
 }
 

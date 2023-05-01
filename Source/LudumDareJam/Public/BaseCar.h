@@ -44,6 +44,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Car Settings")
 		int StopsBeforeDespawn = 4;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Car Sound Effects")
+		USoundCue* HonkSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Car Sound Effects")
+		USoundCue* BlaringHonkSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Car Sound Effects")
+		USoundCue* DrivingSound;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -82,6 +91,11 @@ public:
 	void BehaviourState();
 	void EndStop();
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void PlaySound(USoundCue* SoundToPlay);
+
+	void PlayHonk();
+
 private:
 
 	ECarState CarState = ECarState::Parked;
@@ -96,5 +110,8 @@ private:
 
 	FTimerHandle StopTimer;
 	const float StopDuration = 1.0f;
+
+	FTimerHandle HonkTimer;
+	const float HonkDuration = 7.5f;
 
 };
