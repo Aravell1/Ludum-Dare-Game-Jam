@@ -87,7 +87,7 @@ void ABaseCar::Tick(float DeltaTime)
 
 			for (const FHitResult HitResult : OutHits)
 			{
-				if (HitResult.GetActor() == UGameplayStatics::GetPlayerCharacter(GetWorld(), 0) || Cast<ABaseCar>(HitResult.GetActor()))
+				if (HitResult.GetActor() == UGameplayStatics::GetPlayerPawn(GetWorld(), 0) || Cast<ABaseCar>(HitResult.GetActor()) || Cast<ABaseDog>(HitResult.GetActor()))
 				{
 					SetCarState(ECarState::EmergencyBraking);
 					HitPlayer = true;

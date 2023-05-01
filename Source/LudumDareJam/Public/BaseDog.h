@@ -7,6 +7,8 @@
 #include "DogAIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h" 
+#include "Components/CapsuleComponent.h" 
 #include "BaseDog.generated.h"
 
 UENUM()
@@ -36,10 +38,18 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dog Settings")
 		float RunSpeed = 750.0f;
 
+	UPROPERTY(BlueprintReadWrite)
+		FVector SpawnPoint;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Dog Settings")
+		UAnimMontage* JumpMontage;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result);
+	UFUNCTION()
+		void OnComponentBeginOverlap(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 public:	
 	// Called every frame
@@ -56,10 +66,11 @@ private:
 
 	void CheckForNewspapers();
 	void CatchNewspaper(AActor* Newspaper);
+	void RunAway();
 
 	EDogState DogState = EDogState::ChasePlayer;
 	ADogAIController* AIController;
 	AActor* Player;
-
-
+	FTimerHandle RunAwayTimer;
+	const float RunAwayDuration = 10.0f;
 };
