@@ -23,7 +23,8 @@ void ABaseCar::BehaviourState()
 		//Play constant honk sound
 		SetMovementSpeed(0);
 		PlaySound(BlaringHonkSound);
-		SetLifeSpan(10);
+		if (bSpawnedCar)
+			SetLifeSpan(10);
 		break;
 	}
 }

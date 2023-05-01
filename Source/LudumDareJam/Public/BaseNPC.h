@@ -44,7 +44,7 @@ protected:
 	virtual void PrimaryBehaviour() {};
 
 	UFUNCTION()
-		virtual void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+		void OnComponentBeginOverlap(class UPrimitiveComponent* OverlappedComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 public:	
 	// Called every frame
@@ -59,6 +59,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void PlaySound(USoundCue* SoundToPlay);
+
+	UFUNCTION(BlueprintCallable)
+		void HitByNewspaper(AActor* OtherActor);
 
 private:
 

@@ -20,7 +20,8 @@ void ANPC_GarbageMan::BeginPlay()
 
 void ANPC_GarbageMan::PrimaryBehaviour()
 {
-	AIController->MoveToLocation(PathToFollow[PathIndex]);
+	if (PathToFollow.Num() > 1)
+		AIController->MoveToLocation(PathToFollow[PathIndex]);
 }
 
 void ANPC_GarbageMan::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
