@@ -99,9 +99,10 @@ void ABaseDog::CheckForNewspapers()
 	{
 		for (FHitResult HitResult : OutHits)
 		{
-			if (HitResult.GetActor()->ActorHasTag("Newspaper"))
+			if (HitResult.GetActor()->ActorHasTag("Newspaper") && HitResult.GetActor()->GetVelocity().Length() > 250.0f)
 			{
 				CatchNewspaper(HitResult.GetActor());
+				break;
 			}
 		}
 	}
